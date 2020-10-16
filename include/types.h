@@ -37,4 +37,20 @@ struct arnoldi_res
 	Matrix H;
 };
 typedef struct arnoldi_res Arnoldi_res;
+
+
+struct eigenvalues_s
+{
+  double* real;
+  double* imag;
+  int nb_values;
+};
+typedef struct eigenvalues_s Eigenvalues;
+
+struct eigenvectors_s
+{
+  Vector* v;
+  int nb_vector;
+};
+typedef struct eigenvectors_s Eigenvectors;
 #endif
