@@ -25,6 +25,23 @@ void Vector_print (Vector V)
 
 }
 
+Matrix_1d Matrix_to_Matrix_1d(Matrix M)
+{
+  Matrix_1d res;
+  res.X_size = M.X_size;
+  res.Y_size = M.Y_size;
+  res.A = malloc(sizeof(double) * res.X_size * res.Y_size);
+  for(int i = 0 ; i < M.Y_size ; ++i)
+    {
+      for(int j = 0 ; j < M.X_size ; ++j)
+	{
+	  res.A[i * A.X_size + j] = M.A[i][j];
+	}
+    }
+  
+  return res;
+}
+
 Matrix dot_product_matrix(Matrix A, Matrix B)
 {
 	Matrix res;

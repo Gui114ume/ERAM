@@ -7,6 +7,8 @@ void Matrix_print (Matrix M);
 
 void Vector_print (Vector V);
 
+Matrix_1d Matrix_to_Matrix_1d(Matrix M);
+
 Matrix dot_product_matrix(Matrix A, Matrix B);
 
 Vector dot_prod_matrix_vector_from_matrix(Matrix A, Matrix B, int column);
