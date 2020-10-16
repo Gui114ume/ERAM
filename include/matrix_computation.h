@@ -5,7 +5,11 @@
 
 void Matrix_print (Matrix M);
 
+void Matrix_1d_print(Matrix_1d M);
+
 void Vector_print (Vector V);
+
+Matrix_1d Matrix_to_Matrix_1d(Matrix M);
 
 Matrix dot_product_matrix(Matrix A, Matrix B);
 

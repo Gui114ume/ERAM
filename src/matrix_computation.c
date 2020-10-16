@@ -13,6 +13,20 @@ void Matrix_print (Matrix M)
 	printf("\n");
 
 }
+
+void Matrix_1d_print(Matrix_1d M)
+{
+  for (int i = 0; i < M.Y_SIZE; ++i)
+    {
+      for (int j = 0; j < M.X_SIZE; ++j)
+	{
+	  printf("%f ",M.A[i * M.X_SIZE + j] );
+	}
+      printf("\n");
+    }
+  printf("\n");
+}
+
 void Vector_print (Vector V)
 {
 	for (int i = 0; i < V.Y_SIZE; ++i)
@@ -23,6 +37,23 @@ void Vector_print (Vector V)
 	}
 	printf("\n");
 
+}
+
+Matrix_1d Matrix_to_Matrix_1d(Matrix M)
+{
+  Matrix_1d res;
+  res.X_SIZE = M.X_SIZE;
+  res.Y_SIZE = M.Y_SIZE;
+  res.A = malloc(sizeof(double) * res.X_SIZE * res.Y_SIZE);
+  for(int i = 0 ; i < M.Y_SIZE ; ++i)
+    {
+      for(int j = 0 ; j < M.X_SIZE ; ++j)
+	{
+	  res.A[i * res.X_SIZE + j] = M.A[i][j];
+	}
+    }
+  
+  return res;
 }
 
 Matrix dot_product_matrix(Matrix A, Matrix B)

@@ -15,11 +15,20 @@ struct matrix
 };
 typedef struct matrix Matrix;
 
+struct matrix_1d
+{
+	double *A;
+	int X_SIZE;
+	int Y_SIZE;
+};
+typedef struct matrix_1d Matrix_1d;
+
 struct vector
 {
 	double *V;
 	int Y_SIZE;
 };
+
 typedef struct vector Vector;
 
 struct arnoldi_res
