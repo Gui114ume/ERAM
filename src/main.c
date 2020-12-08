@@ -4,7 +4,8 @@
 #include "ritz_computation_by_arnoldi.h"
 
 int main(int argc, char const *argv[])
-{	srand(time(NULL));
+{	
+	srand(time(NULL));
 
 	Arnoldi_res modified;
 	Matrix M;
@@ -20,6 +21,8 @@ int main(int argc, char const *argv[])
 	Vector residu; 
 	residu.Y_SIZE = CONVERGENCE_ITERATIONS;
 	residu.V = malloc(sizeof(double)*residu.Y_SIZE);
+	long time_start = 0; 
+	long time_stop = 0; 
 	//double convergence[CONVERGENCE_ITERATIONS];
 
 	if (RANDOM_OR_VERIFIED_3X3)
@@ -68,25 +71,25 @@ if (RANDOM_OR_VERIFIED_3X3)
 	else
 	{
 		M.A[0][0] = 1;
-		M.A[0][1] = 2;
+		M.A[0][1] = 3;
 		M.A[0][2] = 3;
-		M.A[1][0] = 2;
-		M.A[1][1] = 2;
-		M.A[1][2] = 3;
-		M.A[2][0] = 4;
-		M.A[2][1] = 2;
-		M.A[2][2] = 1;
+		M.A[1][0] = -2;
+		M.A[1][1] = 11;
+		M.A[1][2] = -2;
+		M.A[2][0] = 8;
+		M.A[2][1] = -7;
+		M.A[2][2] = 6;
 		for (int i = 0; i < V.Y_SIZE; ++i)
 		{	
 			V.V[i] = 1.;	
 		}
 	}
-if (INITIAL_MATRIX_AFF)
+if (INITIAL_MATRIX_AFF && ALL_PRINT)
 {
-	printf("\nMatrix : \n");
+	printf("\nMatrix : n = %d ,m = %d\n",M.X_SIZE, M.Y_SIZE);
 	Matrix_print(M);
 }
-if (INITIAL_VECTOR_AFF)
+if (INITIAL_VECTOR_AFF && ALL_PRINT)
 {
 	printf("Vector : \n");
 	Vector_print(V);
@@ -95,7 +98,9 @@ if (INITIAL_VECTOR_AFF)
 //Arnoldi modified --------------------------------------------
 
 //Initialisation ----------------------------------------------
-	printf("Modified Arnoldi\n");
+	if (ALL_PRINT){
+		printf("Modified Arnoldi\n");
+	}
 
 	wr = malloc(sizeof(double)* order);
 	wi = malloc(sizeof(double)* order);
@@ -112,6 +117,8 @@ if (INITIAL_VECTOR_AFF)
 	}
 
 //Algorithm run -----------------------------------------------
+	time_start = rdtsc();
+
 	if (EXPLICIT_RESTART)
 	{
 		while(start_residu > TOLERENCE && iterations < CONVERGENCE_ITERATIONS)
@@ -119,8 +126,9 @@ if (INITIAL_VECTOR_AFF)
 			modified = Arnoldi_modified(M,V,K_ITER,M.X_SIZE);
 			
 			ritz_computation_by_arnoldi(modified.H, wr, wi, vr);
+
 			retype_sort_eigen(ritz, wr, wi, vr);
-	
+			
 		   	start_residu = residu_ritz(M, ritz);
 		   	residu.V[iterations] = start_residu;
 		   	if (iterations > 1)
@@ -134,7 +142,11 @@ if (INITIAL_VECTOR_AFF)
 		   	iterations ++;
 		}
 	}
-
+	time_stop = rdtsc();
+	if (PERFORMANCE_MEASURE)
+	{
+		printf("%d %ld\n", iterations, time_stop - time_start);
+	}
 	//Print results -------------------------------------------
   	if (ALL_PRINT)
   	{	

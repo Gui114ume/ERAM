@@ -6,7 +6,7 @@ Arnoldi_res Arnoldi_modified(Matrix A, Vector v, int n, int m)
 	// DEFINE -------------------------------------------------
 	if (n > m )
 	{
-		printf("Error : n > m \n");								
+		printf("Error : n > m , n = %d m = %d\n", n, m);								
 		exit(1);
 	}
 	if (A.X_SIZE != A.Y_SIZE)
@@ -16,8 +16,6 @@ Arnoldi_res Arnoldi_modified(Matrix A, Vector v, int n, int m)
 
 	}
 	Arnoldi_res res;
-	long long mesure_start, mesure_stop;
-
 	
 	res.V.X_SIZE = n;
 	res.V.Y_SIZE = m;
@@ -38,7 +36,6 @@ Arnoldi_res Arnoldi_modified(Matrix A, Vector v, int n, int m)
 	vtmp.Y_SIZE = A.Y_SIZE;
 	vtmp.V = malloc(sizeof(double)*vtmp.Y_SIZE);
 	// INITIALIZATION -----------------------------------------
-	mesure_start = rdtsc();
 	
 	normalize_vector(v);
 	
@@ -62,12 +59,6 @@ Arnoldi_res Arnoldi_modified(Matrix A, Vector v, int n, int m)
 		{
 			res.V.A[i][j+1] = vtmp.V[i]/res.H.A[j+1][j];
 		}
-	}
-	mesure_stop= rdtsc();
-	
-	if (PERFORMANCE_MEASURE)
-	{
-		printf("mesure modified : %lld\n",mesure_stop - mesure_start);
 	}
 	
 	return res;
