@@ -15,20 +15,11 @@ struct matrix
 };
 typedef struct matrix Matrix;
 
-struct matrix_1d
-{
-	double *A;
-	int X_SIZE;
-	int Y_SIZE;
-};
-typedef struct matrix_1d Matrix_1d;
-
 struct vector
 {
 	double *V;
 	int Y_SIZE;
 };
-
 typedef struct vector Vector;
 
 struct arnoldi_res
@@ -37,4 +28,13 @@ struct arnoldi_res
 	Matrix H;
 };
 typedef struct arnoldi_res Arnoldi_res;
+
+struct ritz_eigen
+{
+	int order;
+	double * eigen_value;
+	Vector * eigen_vector;
+};
+typedef struct ritz_eigen Ritz_eigen;
+
 #endif
