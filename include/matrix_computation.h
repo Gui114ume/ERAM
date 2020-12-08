@@ -18,7 +18,7 @@ double dot_product_vector_matrix_column(Vector A, Matrix B, int column);
 
 Vector prod_matrix_column_coef(Matrix A, int column, double k);
 
-Vector vector_minus_vector(Vector A, Vector B);
+void vector_minus_vector(Vector A, Vector B);
 
 double norm_vector(Vector A);
 
@@ -34,11 +34,11 @@ Matrix coeff_dot_identy(double k, int order);
 
 Matrix matrix_minus_matrix(Matrix A, Matrix B);
 
-Vector dot_Matrix_Vector(Matrix A, Vector V);
+Vector dot_Matrix_Vector(Matrix A, double* vr, int order, int index);
 
 double vector_norm(Vector v);
 
-void retype_sort_eigen(Ritz_eigen ritz, double * wr, double * wi, double * vr);
+void sort_eigen(double* wr, double* vr, int order);
 
 void recompute_initial_vector_explicit(Vector initial, Ritz_eigen ritz);
 

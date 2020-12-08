@@ -5,10 +5,10 @@
 											// Random 1
 											// 3x3 	  0
 										// If aleatory generated matrix 
-#define Matrix_size_X 10         			// Raw size
-#define Matrix_size_Y 10					// Columns size 
+#define Matrix_size_X 5         			// Raw size
+#define Matrix_size_Y 5					// Columns size 
 #define MAX_VALUE_MATRIX 1000			// Max Value in the matrix 
-#define K_ITER 10						// N
+#define K_ITER 5						// N
 
 #define INITIAL_MATRIX_AFF 1			// Print the initial matrix    			  1 yes, 0 no 
 #define INITIAL_VECTOR_AFF 1			// Print the initial vector    			  1 yes, 0 no 
@@ -19,7 +19,7 @@
 
 #define ORTHOGONALITY_TEST 1			// Test if result vectors are orthogonal  1 yes, 0 no 
 #define TOLERENCE 0.00000000001			// Tolerence of residu 
-#define CONVERGENCE_ITERATIONS 10000	// Iterations to execute all the algorithm
+#define CONVERGENCE_ITERATIONS 5	// Iterations to execute all the algorithm
 
 #define EXPLICIT_RESTART 1 				// Run explicit restart method
 

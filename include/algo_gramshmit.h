@@ -6,6 +6,6 @@
 #include "rdtsc.h"
 #include "parameters.h"
 
-Arnoldi_res Arnoldi_modified(Matrix A, Vector v, int n, int m);
+void Arnoldi_modified(Arnoldi_res res, Matrix A, Vector v, int n, int m);
 
 #endif

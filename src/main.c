@@ -7,10 +7,8 @@ int main(int argc, char const *argv[])
 {	
 	srand(time(NULL));
 
-	Arnoldi_res modified;
 	Matrix M;
 	Vector V;
-	Ritz_eigen ritz;
 	int order = 0;
 	int iterations = 0;
 	double * wr;
@@ -23,7 +21,7 @@ int main(int argc, char const *argv[])
 	residu.V = malloc(sizeof(double)*residu.Y_SIZE);
 	long time_start = 0; 
 	long time_stop = 0; 
-	//double convergence[CONVERGENCE_ITERATIONS];
+	double convergence[CONVERGENCE_ITERATIONS];
 
 	if (RANDOM_OR_VERIFIED_3X3)
 	{
@@ -102,44 +100,122 @@ if (INITIAL_VECTOR_AFF && ALL_PRINT)
 		printf("Modified Arnoldi\n");
 	}
 
+	Arnoldi_res modified;
+	
 	wr = malloc(sizeof(double)* order);
 	wi = malloc(sizeof(double)* order);
 	vr = malloc(sizeof(double)* order * order);
+/*
+	Ritz_eigen ritz;
 
 	ritz.order = order;
 
-	ritz.eigen_value = malloc(sizeof(double) * ritz.order);
-	ritz.eigen_vector = malloc(sizeof(Vector*) * ritz.order);
-	for (int i = 0; i < ritz.order; ++i)
+	ritz.eigen_value = (double*)malloc(sizeof(double) * order);
+	ritz.eigen_vector = malloc(sizeof(Vector) * order);
+	for (int i = 0; i < order; ++i)
 	{
-		ritz.eigen_vector[i].Y_SIZE = ritz.order;
-		ritz.eigen_vector[i].V = malloc(sizeof(double)* ritz.eigen_vector[i].Y_SIZE);
+		ritz.eigen_vector[i].Y_SIZE = order;
+		ritz.eigen_vector[i].V = malloc(sizeof(double) * ritz.eigen_vector[i].Y_SIZE);
+
 	}
+*/
 
 //Algorithm run -----------------------------------------------
+
+	
 	time_start = rdtsc();
 
 	if (EXPLICIT_RESTART)
 	{
+		printf("\nMatrix : n = %d ,m = %d\n",M.X_SIZE, M.Y_SIZE);
+		Matrix_print(M);
+	
+		printf("Vector : \n");
+		Vector_print(V);
+
+		
 		while(start_residu > TOLERENCE && iterations < CONVERGENCE_ITERATIONS)
 		{	
-			modified = Arnoldi_modified(M,V,K_ITER,M.X_SIZE);
-			
-			ritz_computation_by_arnoldi(modified.H, wr, wi, vr);
+			modified.V.X_SIZE = K_ITER;
+			modified.V.Y_SIZE = M.X_SIZE;
+			modified.H.X_SIZE = M.X_SIZE + 1;
+			modified.H.Y_SIZE = M.X_SIZE;
 
-			retype_sort_eigen(ritz, wr, wi, vr);
+			modified.V.A = malloc(sizeof(double*)*modified.V.Y_SIZE);
+			for (int i = 0; i < modified.V.Y_SIZE; ++i)
+			{
+				modified.V.A[i] = calloc(modified.V.X_SIZE, sizeof(double));
+			}
+			modified.H.A = malloc(sizeof(double*)*modified.H.Y_SIZE);
+			for (int i = 0; i < modified.H.Y_SIZE; ++i)
+			{
+				modified.H.A[i] = calloc(modified.H.X_SIZE, sizeof(double));
+			}
+
 			
-		   	start_residu = residu_ritz(M, ritz);
+		
+			Arnoldi_modified(modified,M,V,K_ITER,M.X_SIZE);
+
+	
+		
+			ritz_computation_by_arnoldi(modified.H, wr, wi, vr);
+			printf("Matrix : \n");
+			Matrix_print(modified.H);
+			printf("Eigen values : \n");
+			for (int i = 0; i < order; ++i)
+			{
+				printf("wr[%d] =  %f ::: ",i,wr[i]);
+				for (int j = 0; j < order; ++j)
+				{
+					printf(" %f",vr[i*order +j] );
+				}
+				printf("\n");
+		
+			}
+		
+			
+			sort_eigen(wr, vr, order);
+			printf("Eigen values after sort : \n");
+			for (int i = 0; i < order; ++i)
+			{
+				printf("wr[%d] =  %f ::: ",i,wr[i]);
+				for (int j = 0; j < order; ++j)
+				{
+					printf(" %f",vr[i*order +j] );
+				}
+				printf("\n");
+		
+			}	
+		
+		   	start_residu = residu_ritz(M, wr, vr, order);
 		   	residu.V[iterations] = start_residu;
+		   	printf("residu : %f\n", start_residu);
+			/*
 		   	if (iterations > 1)
 		   	{
 		   		start_residu = abs(residu.V[iterations] - residu.V[iterations-1]);
-		   		//convergence[iterations-1] = start_residu;
-		   		//printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
+		   		convergence[iterations-1] = start_residu;
+		   		printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
 		   	}
 	
 		   	recompute_initial_vector_explicit(V, ritz);
+		   	*/
+		   
 		   	iterations ++;
+
+			for (int i = 0; i < modified.V.Y_SIZE; ++i)
+			{
+				free(modified.V.A[i]);
+			}
+		   	free(modified.V.A);
+			for (int i = 0; i < modified.H.Y_SIZE; ++i)
+			{
+				free(modified.H.A[i]);
+			}
+			free(modified.H.A);
+
+
+
 		}
 	}
 	time_stop = rdtsc();
@@ -184,19 +260,7 @@ if (INITIAL_VECTOR_AFF && ALL_PRINT)
 
   	}
   	 	
-	// FREES --------------------------------------------------
-	for (int i = 0; i < modified.H.Y_SIZE; ++i)
-	{
-		free(modified.H.A[i]);
-	}
-	free(modified.H.A);
-	for (int i = 0; i < modified.V.Y_SIZE; ++i)
-	{
-		free(modified.V.A[i]);
-	}
-	free(modified.V.A);
 
-	
 
 	// FREES --------------------------------------------------
 	for (int i = 0; i < M.Y_SIZE; i++)

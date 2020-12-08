@@ -11,6 +11,6 @@ void eigenvector_print(char * vector_type, int order, double * wi, double * vect
 
 void ritz_computation_by_arnoldi(Matrix M, double * wr, double * wi, double * vr);
 
-double residu_ritz(Matrix M, Ritz_eigen ritz);
+double residu_ritz(Matrix M, double * wr, double * vr, int order);
 
 #endif

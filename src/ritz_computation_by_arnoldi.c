@@ -137,14 +137,19 @@ void ritz_computation_by_arnoldi(Matrix M, double * wr, double * wi, double * vr
 	int info;		 												 // return status
 	
 	from2d_to_1d(M_oneD, M);
-
 	//Allocate the optimal workspace --------------------------
 	lwork = -1;
 	dgeev("N","V", &order,M_oneD,
                 &lda, wr, wi, vl, &ldvl,
                 vr, &ldvr, &wkopt, &lwork, &info);
 	lwork = (int)wkopt;
-    work = (double*)malloc( lwork*sizeof(double) );
+    work = (double*)calloc(sizeof(double),lwork);
+    if (work == NULL)
+    {
+    	printf("Allocate work error\n");
+    	exit(0);
+    }
+
 
     //Compute eigen values and vectors -----------------------
     dgeev( "N", "V", &order, M_oneD, &lda, wr, wi, vl, &ldvl, vr, &ldvr,
@@ -155,27 +160,42 @@ void ritz_computation_by_arnoldi(Matrix M, double * wr, double * wi, double * vr
     	printf("Error computing eigen values and vectors\n");
     	exit(1);
     }
+
+
+	//free(work);
    	
+	printf("debug\n");
+   	free(M_oneD);
 
 }
 
-double residu_ritz(Matrix M, Ritz_eigen ritz)
+double residu_ritz(Matrix M, double * wr, double * vr, int order)
 {	
-	double r[ritz.order];
+	double r[order];
 	double r_tot = 0.;
 	Matrix lambdaI;
 	Matrix A_minus_lambdaI;
 	Vector inside_norm;
 	// Computing residu ---------------------------------------
 
-	for (int i = 0; i < ritz.order; ++i)
+	for (int i = 0; i < order; ++i)
 	{	
-		lambdaI = coeff_dot_identy(ritz.eigen_value[i], ritz.order);
+		lambdaI = coeff_dot_identy(wr[i], order);
 		A_minus_lambdaI = matrix_minus_matrix(M,lambdaI);
 
-		inside_norm = dot_Matrix_Vector(A_minus_lambdaI, ritz.eigen_vector[i]);
+		inside_norm = dot_Matrix_Vector(A_minus_lambdaI, vr, order, i);
 		r[i] = vector_norm(inside_norm);
 		r_tot += r[i];
+
+		for (int f = 0; f <  lambdaI.Y_SIZE; ++f)
+		{
+			free(lambdaI.A[f]);
+			free(A_minus_lambdaI.A[f]);
+		}
+			free(inside_norm.V);
+			free(lambdaI.A);
+			free(A_minus_lambdaI.A);
+	
 	}
 	return r_tot;
 

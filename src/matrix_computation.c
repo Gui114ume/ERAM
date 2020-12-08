@@ -114,18 +114,16 @@ Vector prod_matrix_column_coef(Matrix A, int column, double k)
 	{
 		res.V[i] = A.A[i][column] * k;
 	}
+
 	return res;
 }
-Vector vector_minus_vector(Vector A, Vector B)
+void vector_minus_vector(Vector A, Vector B)
 {
-	Vector res;
-	res.Y_SIZE = A.Y_SIZE;
-	res.V = malloc(sizeof(double)*res.Y_SIZE);
-	for (int i = 0; i < res.Y_SIZE; ++i)
+
+	for (int i = 0; i < A.Y_SIZE; ++i)
 	{
-		res.V[i] = A.V[i] - B.V[i];
+		A.V[i] = A.V[i] - B.V[i];
 	}
-	return res;
 }
 
 double norm_vector(Vector A)
@@ -228,7 +226,7 @@ Matrix matrix_minus_matrix(Matrix A, Matrix B)
 
 }
 
-Vector dot_Matrix_Vector(Matrix A, Vector V)
+Vector dot_Matrix_Vector(Matrix A, double* vr, int order, int index)
 {
 	Vector res;
 	res.Y_SIZE = A.Y_SIZE;
@@ -237,7 +235,7 @@ Vector dot_Matrix_Vector(Matrix A, Vector V)
 	{
 		for (int m = 0; m < A.X_SIZE; ++m)
 		{
-			res.V[i] += A.A[i][m] * V.V[m];
+			res.V[i] += A.A[i][m] * vr[index * order + m];
 		}
 	}
 
@@ -266,33 +264,25 @@ double norm_matrix_column(Matrix A, int column)
 	return res;
 }
 
-void retype_sort_eigen(Ritz_eigen ritz, double * wr, double * wi, double * vr)
+void sort_eigen(double* wr, double* vr, int order)
 {
-	int order = ritz.order;
-	Vector tmp_eigenvectors[order];
+	
 	int index[order];
 	int sorted = 0;
 	double tmp_eingen = 0.;
+	int tmp_index; 
+	double tmp_eingen_vec[order*order];
 
+	
 	for (int i = 0; i < order; ++i)
 	{
 		index[i] = i;
 	}
 
-	//Extracting vectors
-	for (int i = 0; i < order; ++i)
-	{
-		tmp_eigenvectors[i].Y_SIZE = order;
-		tmp_eigenvectors[i].V = malloc(sizeof(double)*tmp_eigenvectors[i].Y_SIZE);
-		for (int j = 0; j < tmp_eigenvectors[i].Y_SIZE; ++j)
-		{
-			tmp_eigenvectors[i].V[j] = vr[i+j*order];
-		}
-	}
+	
 	// Sorting eigenvalues and vectors ------------------------
 	if (order > 2)
 	{
-
 		while(!sorted)
 		{
 			sorted = 1;
@@ -304,19 +294,13 @@ void retype_sort_eigen(Ritz_eigen ritz, double * wr, double * wi, double * vr)
 					wr[i] = wr[i+1];
 					wr[i+1] =tmp_eingen;
 					sorted = 0;
-					index[i] = i+1;
-					index[i+1] = i;
-					//printf("switch %d : %d\n",i, i+1 );
+					tmp_index = index[i];
+					index[i] = index[i+1];
+					index[i+1] = tmp_index;
 				}
 			}
 		}
-		/*
-		printf("Sorted : \n");
-		for (int i = 0; i < order; ++i)
-		{
-			printf("%f\n",wr[i]);
-		}
-		*/
+		
 		
 	}
 	else
@@ -335,19 +319,20 @@ void retype_sort_eigen(Ritz_eigen ritz, double * wr, double * wi, double * vr)
 		}
 	}
 	
-
-	// Swiching to custom structures and ordering -------------
-	for (int i = 0; i < order; ++i)
+	for (int i = 0; i < order*order; ++i)
 	{
-		ritz.eigen_value[i] = wr[index[i]];
-		ritz.eigen_vector[i].Y_SIZE = order;
-		ritz.eigen_vector[i].V = malloc(sizeof(double) * ritz.eigen_vector[i].Y_SIZE);
-		for (int j = 0; j < ritz.eigen_vector[i].Y_SIZE; ++j)
-		{
-			ritz.eigen_vector[i].V[j] = vr[index[i]+j*order];
-		}
+		tmp_eingen_vec[i] = vr[i];
 	}
 
+	// Ordering vectors -------------
+	for (int i = 0; i < order; ++i)
+	{
+		for (int j = 0; j < order; ++j)
+		{
+			vr[i*order + j] = tmp_eingen_vec[index[i]*order + j];
+		}
+	}
+	
 }
 
 void recompute_initial_vector_explicit(Vector initial, Ritz_eigen ritz)
