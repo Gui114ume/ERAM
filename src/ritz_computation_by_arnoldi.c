@@ -164,7 +164,6 @@ void ritz_computation_by_arnoldi(Matrix M, double * wr, double * wi, double * vr
 
 	//free(work);
    	
-	printf("debug\n");
    	free(M_oneD);
 
 }
@@ -185,7 +184,6 @@ double residu_ritz(Matrix M, double * wr, double * vr, int order)
 
 		inside_norm = dot_Matrix_Vector(A_minus_lambdaI, vr, order, i);
 		r[i] = vector_norm(inside_norm);
-		r_tot += r[i];
 
 		for (int f = 0; f <  lambdaI.Y_SIZE; ++f)
 		{
@@ -197,6 +195,13 @@ double residu_ritz(Matrix M, double * wr, double * vr, int order)
 			free(A_minus_lambdaI.A);
 	
 	}
-	return r_tot;
+
+	for (int i = 0; i < order; ++i)
+	{
+		r_tot += r[i] * r[i];
+	}
+
+
+	return sqrt(r_tot);
 
 }

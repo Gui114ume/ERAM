@@ -19,9 +19,9 @@ int main(int argc, char const *argv[])
 	Vector residu; 
 	residu.Y_SIZE = CONVERGENCE_ITERATIONS;
 	residu.V = malloc(sizeof(double)*residu.Y_SIZE);
-	long time_start = 0; 
-	long time_stop = 0; 
 	double convergence[CONVERGENCE_ITERATIONS];
+
+	struct timespec timer_start, timer_stop; 
 
 	if (RANDOM_OR_VERIFIED_3X3)
 	{
@@ -82,23 +82,26 @@ if (RANDOM_OR_VERIFIED_3X3)
 			V.V[i] = 1.;	
 		}
 	}
-if (INITIAL_MATRIX_AFF && ALL_PRINT)
-{
-	printf("\nMatrix : n = %d ,m = %d\n",M.X_SIZE, M.Y_SIZE);
-	Matrix_print(M);
-}
-if (INITIAL_VECTOR_AFF && ALL_PRINT)
-{
-	printf("Vector : \n");
-	Vector_print(V);
-}
+	if (ALL_PRINT)
+	{
+		printf("---------- ERAM ----------\n");
+		printf("\n---------- ENTRY ---------\n");
+		if (INITIAL_MATRIX_AFF)
+		{
+			printf("\nMatrix : n = %d ,m = %d\n",M.X_SIZE, M.Y_SIZE);
+			Matrix_print(M);
+		}
+		if (INITIAL_VECTOR_AFF)
+		{
+			printf("Vector : \n");
+			Vector_print(V);
+		}
+	}
 
 //Arnoldi modified --------------------------------------------
 
 //Initialisation ----------------------------------------------
-	if (ALL_PRINT){
-		printf("Modified Arnoldi\n");
-	}
+	
 
 	Arnoldi_res modified;
 	
@@ -123,16 +126,10 @@ if (INITIAL_VECTOR_AFF && ALL_PRINT)
 //Algorithm run -----------------------------------------------
 
 	
-	time_start = rdtsc();
+	gettimeofday(&timer_start, NULL);
 
 	if (EXPLICIT_RESTART)
 	{
-		printf("\nMatrix : n = %d ,m = %d\n",M.X_SIZE, M.Y_SIZE);
-		Matrix_print(M);
-	
-		printf("Vector : \n");
-		Vector_print(V);
-
 		
 		while(start_residu > TOLERENCE && iterations < CONVERGENCE_ITERATIONS)
 		{	
@@ -152,82 +149,85 @@ if (INITIAL_VECTOR_AFF && ALL_PRINT)
 				modified.H.A[i] = calloc(modified.H.X_SIZE, sizeof(double));
 			}
 
-			
-		
+					
 			Arnoldi_modified(modified,M,V,K_ITER,M.X_SIZE);
+			modified.H.X_SIZE = M.X_SIZE;
+			modified.H.Y_SIZE = M.X_SIZE;
 
-	
 		
 			ritz_computation_by_arnoldi(modified.H, wr, wi, vr);
-			printf("Matrix : \n");
-			Matrix_print(modified.H);
-			printf("Eigen values : \n");
-			for (int i = 0; i < order; ++i)
-			{
-				printf("wr[%d] =  %f ::: ",i,wr[i]);
-				for (int j = 0; j < order; ++j)
-				{
-					printf(" %f",vr[i*order +j] );
-				}
-				printf("\n");
-		
-			}
-		
 			
-			sort_eigen(wr, vr, order);
-			printf("Eigen values after sort : \n");
-			for (int i = 0; i < order; ++i)
-			{
-				printf("wr[%d] =  %f ::: ",i,wr[i]);
-				for (int j = 0; j < order; ++j)
-				{
-					printf(" %f",vr[i*order +j] );
-				}
-				printf("\n");
 		
-			}	
+			sort_eigen(wr, vr, order);
+			if (DEBUG_AFF)
+			{
+				printf("Matrix H: \n");
+				Matrix_print(modified.H);
+
+				printf("Vector V :\n");
+				Matrix_print(modified.V);
+				printf("Eigen values : \n");
+		
+				for (int i = 0; i < order; ++i)
+				{
+					printf("wr[%d] =  %f ::: ",i,wr[i]);
+					for (int j = 0; j < order; ++j)
+					{
+						printf(" %f",vr[i*order +j] );
+					}
+					printf("\n");
+			
+				}
+			
+			}
 		
 		   	start_residu = residu_ritz(M, wr, vr, order);
 		   	residu.V[iterations] = start_residu;
-		   	printf("residu : %f\n", start_residu);
-			/*
+
+
+			
 		   	if (iterations > 1)
 		   	{
-		   		start_residu = abs(residu.V[iterations] - residu.V[iterations-1]);
-		   		convergence[iterations-1] = start_residu;
-		   		printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
+		   		
+		   		convergence[iterations-1] = 1 - residu.V[iterations]/ residu.V[iterations-1];
+		   		convergence[iterations-1] = convergence[iterations-1] > 0 ? convergence[iterations-1] : -convergence[iterations-1];
+		   		start_residu = convergence[iterations-1];
+
+		   		//printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
 		   	}
 	
-		   	recompute_initial_vector_explicit(V, ritz);
-		   	*/
+	
+		   	
+		   	recompute_initial_vector_explicit(V, order, vr);
 		   
 		   	iterations ++;
 
-			for (int i = 0; i < modified.V.Y_SIZE; ++i)
-			{
-				free(modified.V.A[i]);
-			}
-		   	free(modified.V.A);
-			for (int i = 0; i < modified.H.Y_SIZE; ++i)
-			{
-				free(modified.H.A[i]);
-			}
-			free(modified.H.A);
+		   	if (start_residu > TOLERENCE && iterations < CONVERGENCE_ITERATIONS)
+		   	{
+				for (int i = 0; i < modified.V.Y_SIZE; ++i)
+				{
+					free(modified.V.A[i]);
+				}
+			   	free(modified.V.A);
+				for (int i = 0; i < modified.H.Y_SIZE; ++i)
+				{
+					free(modified.H.A[i]);
+				}
+				free(modified.H.A);
+		   	}
 
 
 
 		}
 	}
-	time_stop = rdtsc();
-	if (PERFORMANCE_MEASURE)
-	{
-		printf("%d %ld\n", iterations, time_stop - time_start);
-	}
-	//Print results -------------------------------------------
+	gettimeofday(&timer_stop, NULL);
+
+		//Print results -------------------------------------------
   	if (ALL_PRINT)
   	{	
+		printf("\n---------- EXIT ---------\n");
   		if (H_MATRIX_AFF)
-		{
+		{	
 			printf("Matrix H\n");
 			Matrix_print(modified.H);
 		}
@@ -257,8 +257,11 @@ if (INITIAL_VECTOR_AFF && ALL_PRINT)
 	   	//eigenvector_print("Right eigenvectors", order, wi, vr, order);
 	   	//printf("Residu vector :\n");
 	   	//Vector_print(residu);
-
   	}
+  	if (PERFORMANCE_MEASURE)
+		{
+			printf("Time / iterations : %ld.%ld / %d\n", timer_stop.tv_sec - timer_start.tv_sec, timer_stop.tv_nsec - timer_start.tv_nsec, iterations);
+		}
   	 	
 
 

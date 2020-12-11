@@ -335,24 +335,24 @@ void sort_eigen(double* wr, double* vr, int order)
 	
 }
 
-void recompute_initial_vector_explicit(Vector initial, Ritz_eigen ritz)
+void recompute_initial_vector_explicit(Vector initial, int order, double *vr)
 {
-	if (ritz.order != initial.Y_SIZE)
+	if (order != initial.Y_SIZE)
 	{
 		printf("Unable to compute initial vector \n");
 		exit(1);
 	}
-	double tmp[ritz.order];
-	for (int i = 0; i < ritz.order; ++i)
+	double tmp[order];
+	for (int i = 0; i < order; ++i)
 	{
 		tmp[i] = initial.V[i];
 	}
-	for (int i = 0; i < ritz.order; ++i)
+	for (int i = 0; i < order; ++i)
 	{
 		initial.V[i] = 0;
-		for (int j = 0; j < ritz.order; ++j)
+		for (int j = 0; j < order; ++j)
 		{
-			initial.V[i] += tmp[i] * ritz.eigen_vector[i].V[j];
+			initial.V[i] += tmp[i] * vr[order * i + j];
 		}
 	}
 }

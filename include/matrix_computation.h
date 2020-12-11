@@ -40,7 +40,7 @@ double vector_norm(Vector v);
 
 void sort_eigen(double* wr, double* vr, int order);
 
-void recompute_initial_vector_explicit(Vector initial, Ritz_eigen ritz);
+void recompute_initial_vector_explicit(Vector initial, int order, double *vr);
 
 void recompute_initial_vector_implicit(Matrix H, Matrix V, Ritz_eigen ritz, int shift_p);
 
