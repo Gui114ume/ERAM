@@ -44,7 +44,6 @@ void * ERAM_thread(void * args)
 		}
 		str->vector_updated++;
 	}
-	Vector_print(str->V);
 
 
 
