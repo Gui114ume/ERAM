@@ -511,3 +511,31 @@ Matrix transposed(Matrix M)
 	}
 	return res;
 }
+
+void dot_prod_mat_vec(double * res , Matrix A, double * vect)
+{
+	for (int i = 0; i < A.Y_SIZE; ++i)
+	{
+		for (int j = 0; j < A.X_SIZE; ++j)
+		{
+			res[i] += A.A[i][j] * vect[j];
+		}
+	}
+}
+
+
+double scalaire_vec_vec(double * vout_1, double * vout_2, int n)
+{
+	double res = 0.;
+	for (int i = 0; i < n; ++i)
+	{
+		res += vout_1[i] * vout_2[i];
+	}
+	return res;
+}
+
+double norme_vecteur_double(double * vout, int n)
+{
+	
+	return sqrt(scalaire_vec_vec(vout, vout, n));
+}

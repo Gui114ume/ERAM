@@ -50,4 +50,9 @@ void vector_dot_coeff(Vector V, double k);
 
 Matrix transposed(Matrix M);
 
+void dot_prod_mat_vec(double * res , Matrix A, double * vect);
+
+double scalaire_vec_vec(double * vout_1, double * vout_2, int n);
+
+double norme_vecteur_double(double * vout, int n);
 #endif

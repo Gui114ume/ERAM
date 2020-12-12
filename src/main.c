@@ -136,7 +136,7 @@ if (RANDOM_OR_VERIFIED_3X3)
 			modified.V.X_SIZE = K_ITER;
 			modified.V.Y_SIZE = M.X_SIZE;
 			modified.H.X_SIZE = M.X_SIZE + 1;
-			modified.H.Y_SIZE = M.X_SIZE;
+			modified.H.Y_SIZE = M.X_SIZE + 1;
 
 			modified.V.A = malloc(sizeof(double*)*modified.V.Y_SIZE);
 			for (int i = 0; i < modified.V.Y_SIZE; ++i)
