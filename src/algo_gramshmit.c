@@ -31,18 +31,18 @@ void Arnoldi_modified(Arnoldi_res res, Matrix A, Vector v, int n, int m)
 	vtmp.V = malloc(sizeof(double)*vtmp.Y_SIZE);
 	// INITIALIZATION -----------------------------------------
 	
-	normalize_vector(v);
+	 double module = norm_vector(v);
 	
 	for (int i = 0; i < res.V.Y_SIZE; ++i)
 	{
-		res.V.A[i][0] = v.V[i];
+		res.V.A[i][0] = v.V[i]/module;
 	}
 
 	// ALGORITHM ----------------------------------------------
 	for (int j = 0; j < n; ++j)
 	{
 		
-		vtmp = dot_prod_matrix_vector_from_matrix(A, res.V, j);
+		dot_prod_matrix_vector_from_matrix(vtmp, A, res.V, j);
 	
 		
 		for (int i = 0; i < j+1; ++i)
@@ -52,11 +52,14 @@ void Arnoldi_modified(Arnoldi_res res, Matrix A, Vector v, int n, int m)
 			prod_matrix_vec = prod_matrix_column_coef(res.V,i,res.H.A[i][j]);
 			
 			vector_minus_vector(vtmp, prod_matrix_vec);
-			
-				
+							
 			free(prod_matrix_vec.V);
 		}
 		res.H.A[j][j+1] = norm_vector(vtmp);
+		if (res.H.A[j][j+1] == 0.0)
+		{
+			break;
+		}
 				
 		if (j != n-1)
 		{

@@ -53,24 +53,22 @@ Matrix dot_product_matrix(Matrix A, Matrix B)
 
 	return res;
 }
-Vector dot_prod_matrix_vector_from_matrix(Matrix A, Matrix B, int column)
+
+void dot_prod_matrix_vector_from_matrix(Vector vout, Matrix A, Matrix B, int column)
 {	
 	if (A.X_SIZE != B.Y_SIZE)
 	{
 		printf("Dot prod matrix vector not possible %d != %d \n",A.X_SIZE, B.Y_SIZE );
 	}
-	Vector res;
-	res.Y_SIZE = A.Y_SIZE;
-	res.V = malloc(sizeof(double)*res.Y_SIZE);
-	for (int i = 0; i < res.Y_SIZE; ++i)
+	
+	for (int i = 0; i < A.Y_SIZE; ++i)
 	{
+		vout.V[i] = 0;
 		for (int m = 0; m < A.X_SIZE; ++m)
 		{
-			res.V[i] += A.A[i][m] * B.A[m][column];
+			vout.V[i] += A.A[i][m] * B.A[m][column];
 		}
 	}
-
-	return res;
 
 }
 
@@ -233,6 +231,7 @@ Vector dot_Matrix_Vector(Matrix A, double* vr, int order, int index)
 	res.V = malloc(sizeof(double)*res.Y_SIZE);
 	for (int i = 0; i < res.Y_SIZE; ++i)
 	{
+		res.V[i] = 0;
 		for (int m = 0; m < A.X_SIZE; ++m)
 		{
 			res.V[i] += A.A[i][m] * vr[index * order + m];

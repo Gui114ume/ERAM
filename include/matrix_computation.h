@@ -10,7 +10,7 @@ void Vector_print (Vector V);
 
 Matrix dot_product_matrix(Matrix A, Matrix B);
 
-Vector dot_prod_matrix_vector_from_matrix(Matrix A, Matrix B, int column);
+void dot_prod_matrix_vector_from_matrix(Vector vout, Matrix A, Matrix B, int column);
 
 double dot_product_vector(Vector A, Vector B);
 

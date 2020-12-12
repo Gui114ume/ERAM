@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
 	residu.V = malloc(sizeof(double)*residu.Y_SIZE);
 	double convergence[CONVERGENCE_ITERATIONS];
 
-	struct timespec timer_start, timer_stop; 
+	struct timeval timer_start, timer_stop; 
 
 	if (RANDOM_OR_VERIFIED_3X3)
 	{
@@ -189,11 +189,11 @@ if (RANDOM_OR_VERIFIED_3X3)
 		   	if (iterations > 1)
 		   	{
 		   		
-		   		convergence[iterations-1] = 1 - residu.V[iterations]/ residu.V[iterations-1];
+		   		convergence[iterations-1] = residu.V[iterations] - residu.V[iterations-1];
 		   		convergence[iterations-1] = convergence[iterations-1] > 0 ? convergence[iterations-1] : -convergence[iterations-1];
 		   		start_residu = convergence[iterations-1];
 
-		   		//printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
+		   		printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
 		   	}
 	
 	
@@ -260,7 +260,7 @@ if (RANDOM_OR_VERIFIED_3X3)
   	}
   	if (PERFORMANCE_MEASURE)
 		{
-			printf("Time / iterations : %ld.%ld / %d\n", timer_stop.tv_sec - timer_start.tv_sec, timer_stop.tv_nsec - timer_start.tv_nsec, iterations);
+			printf("Iterations, Time : %d %ld.%ld \n", iterations, timer_stop.tv_sec - timer_start.tv_sec, timer_stop.tv_usec - timer_start.tv_usec);
 		}
   	 	
 
