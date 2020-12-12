@@ -263,7 +263,7 @@ double norm_matrix_column(Matrix A, int column)
 	return res;
 }
 
-void sort_eigen(double* wr, double* vr, int order)
+void sort_eigen(double* wr, double* vr, int order, int desired_eigen)
 {
 	
 	int index[order];
@@ -326,9 +326,20 @@ void sort_eigen(double* wr, double* vr, int order)
 	// Ordering vectors -------------
 	for (int i = 0; i < order; ++i)
 	{
-		for (int j = 0; j < order; ++j)
+		if (i < desired_eigen)
 		{
-			vr[i*order + j] = tmp_eingen_vec[index[i]*order + j];
+			for (int j = 0; j < order; ++j)
+			{
+				vr[i*order + j] = tmp_eingen_vec[index[i]*order + j];
+			}
+		}
+		else
+		{	
+			wr[i]  = 0.;
+			for (int j = 0; j < order; ++j)
+			{
+				vr[i*order + j] = 0.;
+			}
 		}
 	}
 	

@@ -79,7 +79,7 @@ if (RANDOM_OR_VERIFIED_3X3)
 		M.A[2][2] = 6;
 		for (int i = 0; i < V.Y_SIZE; ++i)
 		{	
-			V.V[i] = 1.;	
+			V.V[i] = rand() % MAX_VALUE_MATRIX;	
 		}
 	}
 	if (ALL_PRINT)
@@ -158,7 +158,7 @@ if (RANDOM_OR_VERIFIED_3X3)
 			ritz_computation_by_arnoldi(modified.H, wr, wi, vr);
 			
 		
-			sort_eigen(wr, vr, order);
+			sort_eigen(wr, vr, order, DESIRED_EIGEN);
 			if (DEBUG_AFF)
 			{
 				printf("Matrix H: \n");
@@ -189,11 +189,13 @@ if (RANDOM_OR_VERIFIED_3X3)
 		   	if (iterations > 1)
 		   	{
 		   		
-		   		convergence[iterations-1] = residu.V[iterations] - residu.V[iterations-1];
+		   		convergence[iterations-1] = 1 - (residu.V[iterations] / residu.V[iterations-1]);
 		   		convergence[iterations-1] = convergence[iterations-1] > 0 ? convergence[iterations-1] : -convergence[iterations-1];
 		   		start_residu = convergence[iterations-1];
-
-		   		printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
+		   		if (CONVERGENCE_PRINT)
+		   		{
+		   			printf("Convergence %d : %f\n",iterations, convergence[iterations-1] );
+		   		}
 		   	}
 	
 	
@@ -260,7 +262,13 @@ if (RANDOM_OR_VERIFIED_3X3)
   	}
   	if (PERFORMANCE_MEASURE)
 		{
-			printf("Iterations, Time : %d %ld.%ld \n", iterations, timer_stop.tv_sec - timer_start.tv_sec, timer_stop.tv_usec - timer_start.tv_usec);
+			long int sec = timer_stop.tv_sec - timer_start.tv_sec;
+			long int usec = timer_stop.tv_usec - timer_start.tv_usec;
+			if (sec)
+			{
+				usec = usec < 0 ? -usec : usec;
+			}
+			printf("Iterations, Time : %d %ld.%ld \n", iterations, sec, usec);
 		}
   	 	
 

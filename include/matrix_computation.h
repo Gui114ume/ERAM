@@ -38,7 +38,7 @@ Vector dot_Matrix_Vector(Matrix A, double* vr, int order, int index);
 
 double vector_norm(Vector v);
 
-void sort_eigen(double* wr, double* vr, int order);
+void sort_eigen(double* wr, double* vr, int order, int desired_eigen);
 
 void recompute_initial_vector_explicit(Vector initial, int order, double *vr);
 

@@ -152,8 +152,7 @@ void ritz_computation_by_arnoldi(Matrix M, double * wr, double * wi, double * vr
 
 
     //Compute eigen values and vectors -----------------------
-    dgeev( "N", "V", &order, M_oneD, &lda, wr, wi, vl, &ldvl, vr, &ldvr,
-         work, &lwork, &info );
+    dgeev( "N", "V", &order, M_oneD, &lda, wr, wi, vl, &ldvl, vr, &ldvr, work, &lwork, &info );
 
     if (info !=0 )
     {
@@ -167,7 +166,7 @@ void ritz_computation_by_arnoldi(Matrix M, double * wr, double * wi, double * vr
    	free(M_oneD);
 
 }
-
+/*
 double residu_ritz(Matrix M, double * wr, double * vr, int order)
 {	
 	double r[order];
@@ -193,6 +192,61 @@ double residu_ritz(Matrix M, double * wr, double * vr, int order)
 			free(inside_norm.V);
 			free(lambdaI.A);
 			free(A_minus_lambdaI.A);
+	
+	}
+
+	for (int i = 0; i < order; ++i)
+	{
+		r_tot += r[i] * r[i];
+	}
+
+
+	return sqrt(r_tot);
+
+}
+*/
+
+
+double residu_ritz(Matrix M, double * wr, double * vr, int order)
+{	
+	double r[order];
+	double r_tot = 0.;
+	double ass_vector[order];
+	Matrix A_minus_lambdaI;
+	Matrix lambdaI;
+	double ident_ass_vec[order];
+	double mat_ass_vect[order];
+	double inside_norm[order];
+
+	// Computing residu ---------------------------------------
+
+	for (int i = 0; i < order; ++i)
+	{	
+		lambdaI = coeff_dot_identy(wr[i], order);
+
+		for (int index = 0; index < order; ++index)
+		{
+			ass_vector[index] = vr[i*order + index];
+		}
+
+		A_minus_lambdaI = matrix_minus_matrix(M,lambdaI);
+		dot_prod_mat_vec(ident_ass_vec, A_minus_lambdaI, ass_vector);
+
+		dot_prod_mat_vec(mat_ass_vect, M, ass_vector);
+		for (int index = 0; index < order; ++index)
+		{
+			inside_norm[index] =  mat_ass_vect[index] - ident_ass_vec[index];
+		}
+
+		r[i] = norme_vecteur_double(inside_norm, order);
+
+		for (int f = 0; f <  lambdaI.Y_SIZE; ++f)
+		{	
+			free(lambdaI.A[f]);
+			free(A_minus_lambdaI.A[f]);
+		}
+			free(A_minus_lambdaI.A);
+			free(lambdaI.A);
 	
 	}
 
