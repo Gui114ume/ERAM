@@ -38,4 +38,14 @@ struct ritz_eigen
 };
 typedef struct ritz_eigen Ritz_eigen;
 
+struct 	threads_str
+{
+	Matrix M;
+	Vector V;
+	int vector_updated;
+	int thread_id;
+	double residu;
+};
+typedef struct threads_str Threads_str;
+
 #endif

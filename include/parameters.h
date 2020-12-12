@@ -23,6 +23,8 @@
 #define TOLERENCE 0.001					// Tolerence of residu 
 #define CONVERGENCE_ITERATIONS 1000		// Iterations to execute all the algorithm
 
-#define EXPLICIT_RESTART 1 				// Run explicit restart method
+#define EXPLICIT_RESTART 0 				// Run explicit restart method
+#define MERAM 1							// Run MERAM
+#define THREADS_NUMBER 2				// Threads number
 
 #endif

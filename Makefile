@@ -11,12 +11,13 @@ INCLUDE := -I include
 ERROR_CFLAGS = -Wall
 OPTI_FLAG = -O0
 CFLAGS = -lm
-FLAGS = $(ERROR_CFLAGS) $(OPTI_FLAG) $(CFLAGS)
+THREAD_FLAG = -lpthread
+FLAGS = $(THREAD_FLAG) $(ERROR_CFLAGS) $(OPTI_FLAG) $(CFLAGS)
 LAPACK = -L/usr/local/lib -llapack -lblas
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET)"; $(CC)  $^ -o  $(TARGET) $(INCLUDE) $(CFLAGS) $(LAPACK)
+	@echo " $(CC) $^ -o $(TARGET)"; $(CC)  $^ $(FLAGS) -o $(TARGET) $(INCLUDE) $(CFLAGS) $(LAPACK)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)

@@ -2,6 +2,102 @@
 #include "algo_gramshmit.h"
 #include "parameters.h"
 #include "ritz_computation_by_arnoldi.h"
+#include <pthread.h>
+
+pthread_barrier_t   barrier;
+
+
+void * ERAM_thread(void * args)
+{
+	Threads_str *str  = (Threads_str*)args;
+	Arnoldi_res modified;
+	double * wr;
+	double * wi;
+	double * vr;
+	int order = str->M.X_SIZE;
+
+	wr = malloc(sizeof(double)* order);
+	wi = malloc(sizeof(double)* order);
+	vr = malloc(sizeof(double)* order * order);
+
+	modified.V.X_SIZE = K_ITER;
+	modified.V.Y_SIZE = Matrix_size_Y;
+	modified.H.X_SIZE = Matrix_size_X + 1;
+	modified.H.Y_SIZE = Matrix_size_Y + 1;
+
+	modified.V.A = malloc(sizeof(double*)*modified.V.Y_SIZE);
+	for (int i = 0; i < modified.V.Y_SIZE; ++i)
+	{
+		modified.V.A[i] = calloc(modified.V.X_SIZE, sizeof(double));
+	}
+	modified.H.A = malloc(sizeof(double*)*modified.H.Y_SIZE);
+	for (int i = 0; i < modified.H.Y_SIZE; ++i)
+	{
+		modified.H.A[i] = calloc(modified.H.X_SIZE, sizeof(double));
+	}
+	
+	if (str->vector_updated == 0)
+	{
+		for (int i = 0; i < str->V.Y_SIZE; ++i)
+		{
+			str->V.V[i] = rand() % MAX_VALUE_MATRIX;
+		}
+		str->vector_updated++;
+	}
+	Vector_print(str->V);
+
+
+
+	Arnoldi_modified(modified,str->M,str->V,K_ITER,str->M.X_SIZE);
+	modified.H.X_SIZE = str->M.X_SIZE;
+	modified.H.Y_SIZE = str->M.X_SIZE;
+
+	ritz_computation_by_arnoldi(modified.H, wr, wi, vr);
+	
+
+	sort_eigen(wr, vr, order, DESIRED_EIGEN);
+	if (DEBUG_AFF)
+	{
+		printf("Matrix H: \n");
+		Matrix_print(modified.H);
+		printf("Vector V :\n");
+		Matrix_print(modified.V);
+		printf("Eigen values : \n");
+
+		for (int i = 0; i < order; ++i)
+		{
+			printf("wr[%d] =  %f ::: ",i,wr[i]);
+			for (int j = 0; j < order; ++j)
+			{
+				printf(" %f",vr[i*order +j] );
+			}
+			printf("\n");
+	
+		}
+	
+	}
+
+   	str->residu = residu_ritz(str->M, wr, vr, order);
+   	recompute_initial_vector_explicit(str->V, order, vr);
+ 
+	for (int i = 0; i < modified.V.Y_SIZE; ++i)
+	{
+		free(modified.V.A[i]);
+	}
+   	free(modified.V.A);
+	for (int i = 0; i < modified.H.Y_SIZE; ++i)
+	{
+		free(modified.H.A[i]);
+	}
+	free(modified.H.A);
+
+	free(wr);
+	free(wi);
+	free(vr);
+
+
+	pthread_exit(NULL);		
+}
 
 int main(int argc, char const *argv[])
 {	
@@ -14,6 +110,7 @@ int main(int argc, char const *argv[])
 	double * wr;
 	double * wi;
 	double * vr;
+	Threads_str threads_args[THREADS_NUMBER];
 
 	double start_residu = 10000.;
 	Vector residu; 
@@ -221,6 +318,78 @@ if (RANDOM_OR_VERIFIED_3X3)
 
 
 		}
+	}
+	if (MERAM)
+	{
+		for (int id = 0; id < THREADS_NUMBER; ++id)
+		{
+		threads_args[id].vector_updated = 0;
+		threads_args[id].V.Y_SIZE = Matrix_size_Y;
+		threads_args[id].M.X_SIZE = M.X_SIZE;
+		threads_args[id].M.Y_SIZE = M.Y_SIZE;
+		threads_args[id].V.V = malloc(sizeof(double)*threads_args[id].V.Y_SIZE);
+		threads_args[id].M.A = malloc(sizeof(double*)*threads_args[id].M.Y_SIZE);
+		for (int i = 0; i < threads_args[id].M.Y_SIZE; ++i)
+		{
+			threads_args[id].M.A[i] = malloc(sizeof(double)*threads_args[id].M.X_SIZE);
+			for (int j = 0; j < threads_args[id].M.X_SIZE; ++j)
+			{
+				threads_args[id].M.A[i][j] = M.A[i][j];
+			}
+		}
+
+		}
+
+		pthread_t tid[THREADS_NUMBER];
+		int end = 0;
+		double convergence_thread[THREADS_NUMBER][CONVERGENCE_ITERATIONS];
+		double residu_thread[THREADS_NUMBER][CONVERGENCE_ITERATIONS];
+
+		pthread_barrier_init (&barrier, NULL, THREADS_NUMBER);
+		while(!end)
+		{
+			for (int i = 0; i < THREADS_NUMBER; ++i)
+			{
+				pthread_create(&tid[i], NULL, ERAM_thread, &threads_args[i] );
+			}
+
+			for (int i = 0; i < THREADS_NUMBER; ++i)
+			{
+				pthread_join(tid[i], NULL);
+		
+			}
+			for (int i = 0; i < THREADS_NUMBER; ++i)
+			{
+				if (iterations > 1)
+		   		{
+		   		
+		   			convergence_thread[i][iterations-1] = 1 - (residu_thread[i][iterations] / residu_thread[i][iterations-1]);
+		   			convergence_thread[i][iterations-1] = convergence_thread[i][iterations-1] > 0 ? convergence_thread[i][iterations-1] : -convergence_thread[i][iterations-1];
+		   			if (CONVERGENCE_PRINT)
+		   			{
+		   				printf("Convergence thread %d, %d : %f\n",i, iterations, convergence_thread[i][iterations-1] );
+		   			}
+		   			if (convergence_thread[i][iterations-1] < TOLERENCE && iterations > CONVERGENCE_ITERATIONS)
+		   			{
+		   				end = 1;
+		   			}
+		  	 	}
+			}
+			iterations++;
+
+		}
+
+		for (int i = 0; i < THREADS_NUMBER; ++i)
+		{
+			for (int j = 0; j < threads_args[i].M.Y_SIZE; ++j)
+			{
+				free(threads_args[i].M.A[j]);
+			}
+			free(threads_args[i].V.V);
+			free(threads_args[i].M.A);
+	
+		}
+		
 	}
 	gettimeofday(&timer_stop, NULL);
 
