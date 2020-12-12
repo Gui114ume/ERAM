@@ -5,11 +5,11 @@
 											// Random 1
 											// 3x3 	  0
 										// If aleatory generated matrix 
-#define Matrix_size_X 50         			// Raw size
-#define Matrix_size_Y 50					// Columns size 
+#define Matrix_size_X 10         			// Raw size
+#define Matrix_size_Y 10					// Columns size 
 #define MAX_VALUE_MATRIX 10				// Max Value in the matrix 
-#define K_ITER 50						// N
-#define DESIRED_EIGEN 10 					// Number of desired eigen
+#define K_ITER 10						// N
+#define DESIRED_EIGEN 25 					// Number of desired eigen
 #define INITIAL_MATRIX_AFF 1			// Print the initial matrix    			  1 yes, 0 no 
 #define INITIAL_VECTOR_AFF 1			// Print the initial vector    			  1 yes, 0 no 
 #define H_MATRIX_AFF 1					// Print the result matrix H  			  1 yes, 0 no 

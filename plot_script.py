@@ -8,11 +8,11 @@ import numpy as np
 #
 #print(moy_exec)
 
-x,y = np.loadtxt("Data/ERAM_50_50_Convergence.txt", unpack = True)
+x,y = np.loadtxt("test.txt", unpack = True)
 #f.write(str(moy_exec)+"EOF")
 
 plt.plot(x, y)
-plt.title(label = 'Convergence matrice 100x100 ERAM')
+plt.title(label = 'Convergence matrice 50x50 ERAM')
 plt.xlabel('Iteration')
 plt.ylabel('Residu')
 plt.show()

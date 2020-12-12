@@ -252,10 +252,10 @@ double residu_ritz(Matrix M, double * wr, double * vr, int order)
 
 	for (int i = 0; i < order; ++i)
 	{
-		r_tot += r[i] * r[i];
+		r_tot = r_tot > r[i] ? r_tot : r[i];
 	}
 
 
-	return sqrt(r_tot);
+	return r_tot;
 
 }
